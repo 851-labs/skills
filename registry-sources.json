@@ -1,0 +1,28 @@
+{
+  "repositories": [
+    {
+      "owner": "anthropics",
+      "repo": "skills",
+      "branch": "main",
+      "skillsPath": "skills"
+    },
+    {
+      "owner": "vercel-labs",
+      "repo": "agent-skills",
+      "branch": "main",
+      "skillsPath": "skills"
+    },
+    {
+      "owner": "Dimillian",
+      "repo": "Skills",
+      "branch": "main",
+      "skillsPath": ""
+    },
+    {
+      "owner": "ibelick",
+      "repo": "ui-skills",
+      "branch": "main",
+      "skillsPath": "src"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "skills",
+  "compatibility_date": "2025-01-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/server.ts",
+  "workers_dev": true,
+  "preview_urls": true,
+  "placement": {
+    "mode": "smart",
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1.0,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+    },
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SKILLS_CACHE",
+      "id": "placeholder-create-with-wrangler-kv-namespace-create",
+    },
+  ],
+}
