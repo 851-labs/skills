@@ -2,6 +2,8 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import { configure } from "onedollarstats";
 import { useEffect } from "react";
 
+import { Footer } from "../components/layout/footer";
+import { Header } from "../components/layout/header";
 import appCss from "../styles.css?url";
 
 function RootComponent() {
@@ -10,12 +12,16 @@ function RootComponent() {
   }, []);
 
   return (
-    <html lang="en">
+    <html lang="en" className="bg-bg-primary">
       <head>
         <HeadContent />
       </head>
-      <body>
-        <Outlet />
+      <body className="flex min-h-screen flex-col bg-bg-primary text-text-primary">
+        <Header />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
         <Scripts />
       </body>
     </html>
@@ -34,11 +40,16 @@ const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Skills",
+        title: "skills.surf - Browse Agent Skills",
       },
       {
         name: "description",
-        content: "Skills",
+        content:
+          "Discover, browse, and install Agent Skills from GitHub repositories. Find skills for AI coding agents.",
+      },
+      {
+        name: "theme-color",
+        content: "#0a0a0a",
       },
     ],
     links: [
