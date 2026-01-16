@@ -51,6 +51,42 @@ const Route = createRootRoute({
         name: "theme-color",
         content: "#0a0a0a",
       },
+      // Open Graph
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        property: "og:site_name",
+        content: "skills.surf",
+      },
+      {
+        property: "og:title",
+        content: "skills.surf - Browse Agent Skills",
+      },
+      {
+        property: "og:description",
+        content:
+          "Discover, browse, and install Agent Skills from GitHub repositories. Find skills for AI coding agents.",
+      },
+      {
+        property: "og:url",
+        content: "https://skills.surf",
+      },
+      // Twitter Card
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
+      {
+        name: "twitter:title",
+        content: "skills.surf - Browse Agent Skills",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Discover, browse, and install Agent Skills from GitHub repositories. Find skills for AI coding agents.",
+      },
     ],
     links: [
       {
@@ -64,6 +100,10 @@ const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "canonical",
+        href: "https://skills.surf",
       },
     ],
   }),
