@@ -50,6 +50,16 @@ const Route = createRootRoute({
       {
         name: "theme-color",
         content: "#0a0a0a",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        name: "theme-color",
+        content: "#ffffff",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        name: "color-scheme",
+        content: "dark light",
       },
       // Open Graph
       {
