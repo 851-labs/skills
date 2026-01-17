@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-01-16T23:42:54.477Z",
+  "generatedAt": "2026-01-17T10:17:38.885Z",
   "skills": [
     {
       "name": "algorithmic-art",
@@ -16,7 +16,7 @@
       "id": "anthropics/skills/algorithmic-art",
       "category": "creative",
       "tags": ["code"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -35,7 +35,7 @@
       "id": "anthropics/skills/brand-guidelines",
       "category": "design",
       "tags": ["design"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -54,7 +54,7 @@
       "id": "anthropics/skills/canvas-design",
       "category": "documents",
       "tags": ["pdf", "design"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -72,7 +72,7 @@
       "id": "anthropics/skills/doc-coauthoring",
       "category": "documents",
       "tags": [],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -91,7 +91,7 @@
       "id": "anthropics/skills/docx",
       "category": "documents",
       "tags": [],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -110,7 +110,7 @@
       "id": "anthropics/skills/frontend-design",
       "category": "react-web",
       "tags": ["react", "web", "design", "ai", "code"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -129,7 +129,7 @@
       "id": "anthropics/skills/internal-comms",
       "category": "devops",
       "tags": [],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -148,7 +148,7 @@
       "id": "anthropics/skills/mcp-builder",
       "category": "react-web",
       "tags": ["api", "design", "llm"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -167,7 +167,7 @@
       "id": "anthropics/skills/pdf",
       "category": "documents",
       "tags": ["pdf"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -186,7 +186,7 @@
       "id": "anthropics/skills/pptx",
       "category": "documents",
       "tags": [],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -205,7 +205,7 @@
       "id": "anthropics/skills/skill-creator",
       "category": "design",
       "tags": [],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -223,7 +223,7 @@
       },
       "id": "anthropics/skills/slack-gif-creator",
       "tags": ["ai"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -242,7 +242,7 @@
       "id": "anthropics/skills/theme-factory",
       "category": "creative",
       "tags": [],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -261,7 +261,7 @@
       "id": "anthropics/skills/web-artifacts-builder",
       "category": "react-web",
       "tags": ["react", "web", "ai"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -280,7 +280,7 @@
       "id": "anthropics/skills/webapp-testing",
       "category": "react-web",
       "tags": ["web", "test"],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -299,7 +299,7 @@
       "id": "anthropics/skills/xlsx",
       "category": "documents",
       "tags": [],
-      "repoStars": 43026,
+      "repoStars": 43418,
       "repoDescription": "Public repository for Agent Skills",
       "updatedAt": "2025-12-20T18:09:45Z"
     },
@@ -321,9 +321,9 @@
       "id": "vercel-labs/agent-skills/vercel-deploy",
       "category": "react-web",
       "tags": ["web", "deploy", "ai", "review"],
-      "repoStars": 8847,
+      "repoStars": 9648,
       "repoDescription": "",
-      "updatedAt": "2026-01-16T20:23:00Z"
+      "updatedAt": "2026-01-16T23:47:11Z"
     },
     {
       "name": "vercel-react-best-practices",
@@ -344,16 +344,17 @@
       "id": "vercel-labs/agent-skills/vercel-react-best-practices",
       "category": "react-web",
       "tags": ["react", "code", "review"],
-      "repoStars": 8847,
+      "repoStars": 9648,
       "repoDescription": "",
-      "updatedAt": "2026-01-16T20:23:00Z"
+      "updatedAt": "2026-01-16T23:47:11Z"
     },
     {
       "name": "web-design-guidelines",
       "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\".",
       "metadata": {
         "author": "vercel",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "argument-hint": "<file-or-pattern>"
       },
       "source": {
         "owner": "vercel-labs",
@@ -366,9 +367,9 @@
       "id": "vercel-labs/agent-skills/web-design-guidelines",
       "category": "react-web",
       "tags": ["web", "design", "ai", "code", "review"],
-      "repoStars": 8847,
+      "repoStars": 9648,
       "repoDescription": "",
-      "updatedAt": "2026-01-16T20:23:00Z"
+      "updatedAt": "2026-01-16T23:47:11Z"
     },
     {
       "name": "app-store-changelog",
@@ -384,7 +385,7 @@
       "id": "Dimillian/Skills/app-store-changelog",
       "category": "devops",
       "tags": [],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -402,7 +403,7 @@
       "id": "Dimillian/Skills/gh-issue-fix-flow",
       "category": "ios-swift",
       "tags": ["test", "code"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -420,7 +421,7 @@
       "id": "Dimillian/Skills/ios-debugger-agent",
       "category": "ios-swift",
       "tags": ["ios", "code"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -438,7 +439,7 @@
       "id": "Dimillian/Skills/macos-spm-app-packaging",
       "category": "ios-swift",
       "tags": ["swift", "code"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -456,7 +457,7 @@
       "id": "Dimillian/Skills/swift-concurrency-expert",
       "category": "ios-swift",
       "tags": ["swift", "review"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -474,7 +475,7 @@
       "id": "Dimillian/Skills/swiftui-liquid-glass",
       "category": "ios-swift",
       "tags": ["swift", "ios", "api", "design", "review"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -492,7 +493,7 @@
       "id": "Dimillian/Skills/swiftui-performance-audit",
       "category": "ios-swift",
       "tags": ["swift", "code", "review"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -510,7 +511,7 @@
       "id": "Dimillian/Skills/swiftui-ui-patterns",
       "category": "ios-swift",
       "tags": ["swift", "design"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -528,7 +529,7 @@
       "id": "Dimillian/Skills/swiftui-view-refactor",
       "category": "ios-swift",
       "tags": ["swift", "review"],
-      "repoStars": 1275,
+      "repoStars": 1305,
       "repoDescription": "My Codex Skills",
       "updatedAt": "2026-01-09T15:05:03Z"
     },
@@ -546,9 +547,197 @@
       "id": "ibelick/ui-skills/ui-skills",
       "category": "design",
       "tags": ["ai"],
-      "repoStars": 333,
+      "repoStars": 365,
       "repoDescription": "Opinionated constraints for building better interfaces with agents.",
-      "updatedAt": "2026-01-14T12:50:04Z"
+      "updatedAt": "2026-01-17T09:21:21Z"
+    },
+    {
+      "name": "create-cli",
+      "description": "Design command-line interface parameters and UX: arguments, flags, subcommands, help text, output formats, error messages, exit codes, prompts, config/env precedence, and safe/dry-run behavior. Use when you're designing a CLI spec (before implementation) or refactoring an existing CLI's surface area for consistency, composability, and discoverability.\n",
+      "metadata": {
+        "author": "steipete"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/create-cli",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/create-cli",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/create-cli/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/create-cli",
+      "category": "design",
+      "tags": ["design", "code"],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "cursor",
+      "description": "Open the project in cursor",
+      "metadata": {
+        "author": "pondorasti"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/cursor",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/cursor",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/cursor/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/cursor",
+      "tags": [],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "ncu",
+      "description": "Update dependencies",
+      "metadata": {
+        "author": "pondorasti"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/ncu",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/ncu",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/ncu/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/ncu",
+      "category": "devops",
+      "tags": [],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "rams",
+      "description": "Run accessibility and visual design review",
+      "metadata": {
+        "author": "rams.ai"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/rams",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/rams",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/rams/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/rams",
+      "category": "design",
+      "tags": ["design", "review"],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "swift-concurrency-expert",
+      "description": "Swift Concurrency review and remediation for Swift 6.2+. Use when asked to review Swift Concurrency usage, improve concurrency compliance, or fix Swift concurrency compiler errors in a feature or file.",
+      "metadata": {
+        "author": "dimillian"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/swift-concurrency-expert",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/swift-concurrency-expert",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/swift-concurrency-expert/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/swift-concurrency-expert",
+      "category": "ios-swift",
+      "tags": ["swift", "review"],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "swiftui-liquid-glass",
+      "description": "Implement, review, or improve SwiftUI features using the iOS 26+ Liquid Glass API. Use when asked to adopt Liquid Glass in new SwiftUI UI, refactor an existing feature to Liquid Glass, or review Liquid Glass usage for correctness, performance, and design alignment.",
+      "metadata": {
+        "author": "dimillian"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/swiftui-liquid-glass",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/swiftui-liquid-glass",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/swiftui-liquid-glass/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/swiftui-liquid-glass",
+      "category": "ios-swift",
+      "tags": ["swift", "ios", "api", "design", "review"],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "swiftui-performance-audit",
+      "description": "Audit and improve SwiftUI runtime performance from code review and architecture. Use for requests to diagnose slow rendering, janky scrolling, high CPU/memory usage, excessive view updates, or layout thrash in SwiftUI apps, and to provide guidance for user-run Instruments profiling when code review alone is insufficient.",
+      "metadata": {
+        "author": "dimillian"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/swiftui-performance-audit",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/swiftui-performance-audit",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/swiftui-performance-audit/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/swiftui-performance-audit",
+      "category": "ios-swift",
+      "tags": ["swift", "code", "review"],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "swiftui-ui-patterns",
+      "description": "Best practices and example-driven guidance for building SwiftUI views and components. Use when creating or refactoring SwiftUI UI, designing tab architecture with TabView, composing screens, or needing component-specific patterns and examples.",
+      "metadata": {
+        "author": "dimillian"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/swiftui-ui-patterns",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/swiftui-ui-patterns",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/swiftui-ui-patterns/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/swiftui-ui-patterns",
+      "category": "ios-swift",
+      "tags": ["swift", "design"],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
+    },
+    {
+      "name": "swiftui-view-refactor",
+      "description": "Refactor and review SwiftUI view files for consistent structure, dependency injection, and Observation usage. Use when asked to clean up a SwiftUI view's layout/ordering, handle view models safely (non-optional when possible), or standardize how dependencies and @Observable state are initialized and passed.",
+      "metadata": {
+        "author": "dimillian"
+      },
+      "source": {
+        "owner": "pondorasti",
+        "repo": "pondorasti",
+        "path": "packages/cli/dotfiles/agents/skills/swiftui-view-refactor",
+        "branch": "main",
+        "githubUrl": "https://github.com/pondorasti/pondorasti/tree/main/packages/cli/dotfiles/agents/skills/swiftui-view-refactor",
+        "rawSkillMdUrl": "https://raw.githubusercontent.com/pondorasti/pondorasti/main/packages/cli/dotfiles/agents/skills/swiftui-view-refactor/SKILL.md"
+      },
+      "id": "pondorasti/pondorasti/swiftui-view-refactor",
+      "category": "ios-swift",
+      "tags": ["swift", "review"],
+      "repoStars": 2,
+      "repoDescription": "",
+      "updatedAt": "2026-01-16T20:01:19Z"
     }
   ]
 }
