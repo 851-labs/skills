@@ -281,6 +281,12 @@ async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
     "filename:SKILL.md stars:>100",
     "filename:SKILL.md stars:50..100",
     "filename:SKILL.md stars:10..50",
+    // Content-based searches for Agent Skills frontmatter patterns
+    "filename:SKILL.md name description",
+    // Search in nested paths (skills/, agents/, .claude/)
+    "filename:SKILL.md path:skills",
+    "filename:SKILL.md path:agents",
+    "filename:SKILL.md path:.claude",
   ];
 
   for (const query of searchQueries) {
