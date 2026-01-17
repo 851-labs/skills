@@ -1,58 +1,63 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-
-import type { Skill } from "@/lib/types";
+import { useSuspenseInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { fallback, zodValidator } from "@tanstack/zod-adapter";
+import { useMemo } from "react";
+import { z } from "zod";
 
 import { FilterSidebar } from "@/components/filter-sidebar";
+import { LoadMoreButton } from "@/components/load-more-button";
 import { SearchBar } from "@/components/search-bar";
 import { SkillCard } from "@/components/skill-card";
-import { getAllSkillsFn } from "@/lib/api/skills.server";
-import { createSearchIndex, filterByCategories, searchSkills, sortSkills } from "@/lib/search";
+import { api } from "@/lib/api";
+
+// Search params schema with validation and defaults
+const searchParamsSchema = z.object({
+  q: fallback(z.string().optional(), ""),
+  categories: fallback(z.array(z.string()).optional(), []),
+});
 
 function HomePage() {
-  const { skills } = Route.useLoaderData();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const search = Route.useSearch();
+  const q = search.q ?? "";
+  const categories = search.categories ?? [];
+  const navigate = useNavigate({ from: Route.fullPath });
 
-  // Create search index
-  const searchIndex = useMemo(() => createSearchIndex(skills), [skills]);
+  // Stats (lightweight aggregate query, always fast)
+  const { data: stats } = useSuspenseQuery(api.skills.stats.queryOptions());
 
-  // Calculate category counts
-  const categoryCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const skill of skills) {
-      if (skill.category) {
-        counts.set(skill.category, (counts.get(skill.category) || 0) + 1);
-      }
-    }
-    return counts;
-  }, [skills]);
+  // Infinite paginated skills
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery(
+    api.skills.paginated.infiniteQueryOptions({
+      search: q || undefined,
+      categories: categories.length > 0 ? categories : undefined,
+    }),
+  );
 
-  // Filter and sort skills
-  const filteredSkills = useMemo(() => {
-    let result: Skill[];
+  // Flatten pages into single array
+  const skills = useMemo(() => data.pages.flatMap((page) => page.skills), [data.pages]);
 
-    // If searching, use search results
-    if (searchQuery.trim()) {
-      result = searchSkills(searchIndex, searchQuery);
-    } else {
-      result = skills;
-    }
+  // URL state handlers
+  const setSearch = (value: string) => {
+    void navigate({
+      search: (prev) => ({
+        ...prev,
+        q: value || undefined,
+      }),
+      replace: true,
+    });
+  };
 
-    // Apply category filter
-    result = filterByCategories(result, selectedCategories);
+  const setCategories = (value: string[]) => {
+    void navigate({
+      search: (prev) => ({
+        ...prev,
+        categories: value.length > 0 ? value : undefined,
+      }),
+      replace: true,
+    });
+  };
 
-    // Sort by stars
-    result = sortSkills(result, "stars");
-
-    return result;
-  }, [skills, searchQuery, searchIndex, selectedCategories]);
-
-  // Stats
-  const repoCount = useMemo(() => {
-    const repos = new Set(skills.map((s) => `${s.source.owner}/${s.source.repo}`));
-    return repos.size;
-  }, [skills]);
+  const hasFilters = q || categories.length > 0;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -64,11 +69,11 @@ function HomePage() {
         <p className="mb-8 text-text-secondary">Browse and install skills for AI coding agents</p>
 
         <div className="mx-auto max-w-xl">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar value={q} onChange={setSearch} />
         </div>
 
         <p className="mt-4 font-mono text-sm text-text-tertiary">
-          {repoCount} repositories &middot; {skills.length} skills
+          {stats.totalRepos} repositories &middot; {stats.totalSkills} skills
         </p>
       </div>
 
@@ -76,26 +81,46 @@ function HomePage() {
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Sidebar */}
         <FilterSidebar
-          selectedCategories={selectedCategories}
-          onCategoryChange={setSelectedCategories}
-          categoryCounts={categoryCounts}
+          selectedCategories={categories}
+          onCategoryChange={setCategories}
+          categoryCounts={stats.categoryCounts}
         />
 
         {/* Skills Grid */}
         <div className="flex-1">
-          {filteredSkills.length === 0 ? (
+          {skills.length === 0 ? (
             <div className="border border-border bg-bg-secondary p-12 text-center">
-              <p className="font-mono text-text-secondary">No skills found</p>
-              <p className="mt-2 text-sm text-text-tertiary">
-                Try adjusting your search or filters
+              <p className="font-mono text-text-secondary">
+                {hasFilters ? `No skills found matching "${q}"` : "No skills found"}
               </p>
+              {hasFilters && (
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setCategories([]);
+                  }}
+                  className="mt-4 text-sm text-accent hover:underline"
+                >
+                  Clear filters
+                </button>
+              )}
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {filteredSkills.map((skill) => (
-                <SkillCard key={skill.id} skill={skill} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {skills.map((skill) => (
+                  <SkillCard key={skill.id} skill={skill} />
+                ))}
+              </div>
+
+              <LoadMoreButton
+                onClick={() => fetchNextPage()}
+                isLoading={isFetchingNextPage}
+                hasMore={hasNextPage}
+                loadedCount={skills.length}
+                totalCount={stats.totalSkills}
+              />
+            </>
           )}
         </div>
       </div>
@@ -105,9 +130,19 @@ function HomePage() {
 
 const Route = createFileRoute("/")({
   component: HomePage,
-  loader: async () => {
-    const skills = await getAllSkillsFn();
-    return { skills };
+  validateSearch: zodValidator(searchParamsSchema),
+  loaderDeps: ({ search }) => ({ q: search.q ?? "", categories: search.categories ?? [] }),
+  loader: async ({ context: { queryClient }, deps }) => {
+    // Prefetch stats and first page in parallel
+    await Promise.all([
+      queryClient.ensureQueryData(api.skills.stats.queryOptions()),
+      queryClient.ensureInfiniteQueryData(
+        api.skills.paginated.infiniteQueryOptions({
+          search: deps.q || undefined,
+          categories: deps.categories.length > 0 ? deps.categories : undefined,
+        }),
+      ),
+    ]);
   },
 });
 

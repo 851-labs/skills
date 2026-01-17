@@ -1,11 +1,12 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, Folder, Star, Tag } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { SkillCard } from "@/components/skill-card";
 import { SkillContent } from "@/components/skill-content";
 import { SkillInstall } from "@/components/skill-install";
-import { getSkillByIdFn, getSkillsByRepoFn } from "@/lib/api/skills.server";
+import { api } from "@/lib/api";
 import { fetchSkillMd, parseSkillMd } from "@/lib/github";
 
 function formatStars(stars: number): string {
@@ -16,10 +17,20 @@ function formatStars(stars: number): string {
 }
 
 function SkillDetailPage() {
-  const { owner, repo } = Route.useParams();
-  const { skill, relatedSkills } = Route.useLoaderData();
+  const { owner, repo, skill: skillSlug } = Route.useParams();
+  const skillId = `${owner}/${repo}/${skillSlug}`;
+
+  const { data: skill } = useSuspenseQuery(api.skills.byId.queryOptions({ id: skillId }));
+  const { data: allRepoSkills } = useSuspenseQuery(api.skills.byRepo.queryOptions({ owner, repo }));
+
   const [skillContent, setSkillContent] = useState<string | null>(null);
   const [contentLoading, setContentLoading] = useState(true);
+
+  // Filter out the current skill and take up to 4 related skills
+  const relatedSkills = useMemo(
+    () => allRepoSkills.filter((s) => s.id !== skillId).slice(0, 4),
+    [allRepoSkills, skillId],
+  );
 
   // Fetch SKILL.md content
   useEffect(() => {
@@ -43,13 +54,13 @@ function SkillDetailPage() {
   if (!skill) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12">
-        <Link
-          to="/"
+        <a
+          href="/"
           className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary hover:text-text-secondary"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to all skills
-        </Link>
+        </a>
         <div className="border border-border bg-bg-secondary p-12 text-center">
           <p className="font-mono text-text-secondary">Skill not found</p>
         </div>
@@ -61,9 +72,9 @@ function SkillDetailPage() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       {/* Breadcrumb */}
       <nav className="mb-8 flex items-center gap-2 text-sm">
-        <Link to="/" className="text-text-tertiary hover:text-text-secondary">
+        <a href="/" className="text-text-tertiary hover:text-text-secondary">
           Home
-        </Link>
+        </a>
         <span className="text-text-tertiary">/</span>
         <Link
           to="/$owner"
@@ -187,15 +198,15 @@ function SkillDetailPage() {
 
 const Route = createFileRoute("/$owner/$repo/$skill")({
   component: SkillDetailPage,
-  loader: async ({ params }) => {
+  loader: async ({ context: { queryClient }, params }) => {
     const skillId = `${params.owner}/${params.repo}/${params.skill}`;
-    const [skill, allRepoSkills] = await Promise.all([
-      getSkillByIdFn({ data: { id: skillId } }),
-      getSkillsByRepoFn({ data: { owner: params.owner, repo: params.repo } }),
+    // Prefetch skill and related skills in parallel
+    await Promise.all([
+      queryClient.ensureQueryData(api.skills.byId.queryOptions({ id: skillId })),
+      queryClient.ensureQueryData(
+        api.skills.byRepo.queryOptions({ owner: params.owner, repo: params.repo }),
+      ),
     ]);
-    // Filter out the current skill and take up to 4 related skills
-    const relatedSkills = allRepoSkills.filter((s) => s.id !== skillId).slice(0, 4);
-    return { skill, relatedSkills };
   },
 });
 

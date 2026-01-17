@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, GitPullRequest } from "lucide-react";
 
 import { CopyButton } from "@/components/copy-button";
@@ -27,13 +27,13 @@ function SubmitPage() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       {/* Breadcrumb */}
       <nav className="mb-8">
-        <Link
-          to="/"
+        <a
+          href="/"
           className="inline-flex items-center gap-2 text-sm text-text-tertiary hover:text-text-secondary"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to all skills
-        </Link>
+        </a>
       </nav>
 
       {/* Header */}

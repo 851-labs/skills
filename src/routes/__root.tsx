@@ -1,4 +1,6 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
+
+import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { configure } from "onedollarstats";
 import { useEffect } from "react";
 
@@ -6,29 +8,9 @@ import { Footer } from "../components/layout/footer";
 import { Header } from "../components/layout/header";
 import appCss from "../styles.css?url";
 
-function RootComponent() {
-  useEffect(() => {
-    configure();
-  }, []);
-
-  return (
-    <html lang="en" className="bg-bg-primary">
-      <head>
-        <HeadContent />
-      </head>
-      <body className="flex min-h-screen flex-col bg-bg-primary text-text-primary">
-        <Header />
-        <main className="flex-1">
-          <Outlet />
-        </main>
-        <Footer />
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
-const Route = createRootRoute({
+const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+}>()({
   component: RootComponent,
   head: () => ({
     meta: [
@@ -118,5 +100,27 @@ const Route = createRootRoute({
     ],
   }),
 });
+
+function RootComponent() {
+  useEffect(() => {
+    configure();
+  }, []);
+
+  return (
+    <html lang="en" className="bg-bg-primary">
+      <head>
+        <HeadContent />
+      </head>
+      <body className="flex min-h-screen flex-col bg-bg-primary text-text-primary">
+        <Header />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
 
 export { Route };

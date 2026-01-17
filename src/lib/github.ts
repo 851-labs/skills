@@ -1,3 +1,5 @@
+import matter from "gray-matter";
+
 import type { SkillFrontmatter } from "./types";
 
 const GITHUB_API_BASE = "https://api.github.com";
@@ -223,35 +225,11 @@ async function fetchSkillMd(
 
 // Parse SKILL.md frontmatter using gray-matter
 function parseSkillMd(content: string): { frontmatter: SkillFrontmatter; body: string } {
-  // Dynamic import would be better but for simplicity we'll handle it inline
-  // The actual parsing happens in the indexer script with gray-matter
-
-  // Simple YAML frontmatter parser for runtime use
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-
-  if (!frontmatterMatch) {
-    throw new Error("Invalid SKILL.md format: missing frontmatter");
-  }
-
-  const yamlContent = frontmatterMatch[1];
-  const body = frontmatterMatch[2];
-
-  // Simple YAML parsing for basic key-value pairs
-  const frontmatter: Record<string, unknown> = {};
-  const lines = yamlContent.split("\n");
-
-  for (const line of lines) {
-    const match = line.match(/^(\w+):\s*(.*)$/);
-    if (match) {
-      const [, key, value] = match;
-      // Remove quotes if present
-      frontmatter[key] = value.replace(/^["']|["']$/g, "");
-    }
-  }
+  const parsed = matter(content);
 
   return {
-    frontmatter: frontmatter as unknown as SkillFrontmatter,
-    body,
+    frontmatter: parsed.data as SkillFrontmatter,
+    body: parsed.content,
   };
 }
 
@@ -284,14 +262,25 @@ async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
 
   console.log(`[GitHub Search] Starting search for SKILL.md files`);
 
-  // Search with multiple queries to find Agent Skills specifically
-  // The basic filename search returns too much noise (57k+ results)
-  // We use content-based searches to find files with frontmatter patterns
+  // Search for ALL SKILL.md files using date-based pagination to work around
+  // GitHub's 1000 result limit per query. We validate against the Agent Skills
+  // spec in the consumer, so we can be broad here.
+  //
+  // Strategy: Use pushed: date ranges to get different result sets
+  // Each query can return up to 1000 results, so we split by time periods
   const searchQueries = [
-    "filename:SKILL.md name description compatibility", // Agent Skills format
-    "filename:SKILL.md org:anthropics", // Official Anthropic skills
-    "filename:SKILL.md org:851-labs", // Our skills
-    "filename:SKILL.md claude skill agent", // Related keywords
+    // Recent files (most likely to be valid Agent Skills)
+    "filename:SKILL.md pushed:>=2025-01-01",
+    "filename:SKILL.md pushed:2024-07-01..2024-12-31",
+    "filename:SKILL.md pushed:2024-01-01..2024-06-30",
+    "filename:SKILL.md pushed:2023-07-01..2023-12-31",
+    "filename:SKILL.md pushed:2023-01-01..2023-06-30",
+    "filename:SKILL.md pushed:2022-01-01..2022-12-31",
+    "filename:SKILL.md pushed:<2022-01-01",
+    // Also search by stars to catch popular repos that might be missed
+    "filename:SKILL.md stars:>100",
+    "filename:SKILL.md stars:50..100",
+    "filename:SKILL.md stars:10..50",
   ];
 
   for (const query of searchQueries) {

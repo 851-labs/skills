@@ -12,6 +12,7 @@ import {
   parseSkillMd,
 } from "@/lib/github";
 import { inferCategory, inferTags } from "@/lib/skills";
+import { validateSkillFrontmatter } from "@/lib/validation";
 
 import type { DiscoveryJobMessage } from "./types";
 
@@ -118,6 +119,13 @@ async function processRepo(message: DiscoveryJobMessage): Promise<void> {
         const skillMdPath = skillPath ? `${skillPath}/SKILL.md` : "SKILL.md";
         const content = await fetchRawContent(owner, repo, defaultBranch, skillMdPath, token);
         const { frontmatter } = parseSkillMd(content);
+
+        // Validate frontmatter against Agent Skills spec
+        const validation = validateSkillFrontmatter(frontmatter);
+        if (!validation.valid) {
+          console.warn(`${log} Invalid skill at ${skillPath}: ${validation.errors.join(", ")}`);
+          continue; // Skip invalid skills
+        }
 
         // Extract skill name from path (last segment) or use frontmatter name
         const skillName =

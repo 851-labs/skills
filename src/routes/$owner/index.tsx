@@ -1,9 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, Star } from "lucide-react";
 import { useMemo } from "react";
 
+import { LoadMoreButton } from "@/components/load-more-button";
 import { SkillCard } from "@/components/skill-card";
-import { getSkillsByOwnerFn } from "@/lib/api/skills.server";
+import { api } from "@/lib/api";
 
 function formatStars(stars: number): string {
   if (stars >= 1000) {
@@ -14,7 +16,13 @@ function formatStars(stars: number): string {
 
 function OwnerPage() {
   const { owner } = Route.useParams();
-  const { skills } = Route.useLoaderData();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery(
+    api.skills.byOwner.infiniteQueryOptions({ owner }),
+  );
+
+  // Flatten pages into single array
+  const skills = useMemo(() => data.pages.flatMap((page) => page.skills), [data.pages]);
 
   // Get unique repos for this owner
   const repos = useMemo(() => {
@@ -32,7 +40,7 @@ function OwnerPage() {
         existing.count += 1;
       }
     }
-    return Array.from(repoMap.entries()).map(([repo, data]) => ({ repo, ...data }));
+    return Array.from(repoMap.entries()).map(([repo, repoData]) => ({ repo, ...repoData }));
   }, [skills]);
 
   // Calculate total stars
@@ -48,13 +56,13 @@ function OwnerPage() {
   if (skills.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-12">
-        <Link
-          to="/"
+        <a
+          href="/"
           className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary hover:text-text-secondary"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to all skills
-        </Link>
+        </a>
         <div className="border border-border bg-bg-secondary p-12 text-center">
           <p className="font-mono text-text-secondary">No skills found for {owner}</p>
         </div>
@@ -65,13 +73,13 @@ function OwnerPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       {/* Breadcrumb */}
-      <Link
-        to="/"
+      <a
+        href="/"
         className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary hover:text-text-secondary"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to all skills
-      </Link>
+      </a>
 
       {/* Header */}
       <div className="mb-8 border border-border bg-bg-secondary p-6">
@@ -110,15 +118,24 @@ function OwnerPage() {
           <SkillCard key={skill.id} skill={skill} />
         ))}
       </div>
+
+      <LoadMoreButton
+        onClick={() => fetchNextPage()}
+        isLoading={isFetchingNextPage}
+        hasMore={hasNextPage}
+        loadedCount={skills.length}
+        totalCount={skills.length} // We don't have total for owner-specific, just show loaded
+      />
     </div>
   );
 }
 
 const Route = createFileRoute("/$owner/")({
   component: OwnerPage,
-  loader: async ({ params }) => {
-    const skills = await getSkillsByOwnerFn({ data: { owner: params.owner } });
-    return { skills };
+  loader: async ({ context: { queryClient }, params }) => {
+    await queryClient.ensureInfiniteQueryData(
+      api.skills.byOwner.infiniteQueryOptions({ owner: params.owner }),
+    );
   },
 });
 

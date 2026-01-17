@@ -3,7 +3,7 @@ import { SKILL_CATEGORIES } from "@/lib/types";
 interface FilterSidebarProps {
   selectedCategories: string[];
   onCategoryChange: (categories: string[]) => void;
-  categoryCounts: Map<string, number>;
+  categoryCounts: Record<string, number>;
 }
 
 function FilterSidebar({
@@ -27,7 +27,7 @@ function FilterSidebar({
         </h3>
         <div className="space-y-2">
           {SKILL_CATEGORIES.map((category) => {
-            const count = categoryCounts.get(category.id) || 0;
+            const count = categoryCounts[category.id] ?? 0;
             const isSelected = selectedCategories.includes(category.id);
 
             return (

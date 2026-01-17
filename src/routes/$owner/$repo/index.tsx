@@ -1,9 +1,10 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Star } from "lucide-react";
 import { useMemo } from "react";
 
 import { SkillCard } from "@/components/skill-card";
-import { getSkillsByRepoFn } from "@/lib/api/skills.server";
+import { api } from "@/lib/api";
 
 function formatStars(stars: number): string {
   if (stars >= 1000) {
@@ -14,7 +15,8 @@ function formatStars(stars: number): string {
 
 function RepoPage() {
   const { owner, repo } = Route.useParams();
-  const { skills } = Route.useLoaderData();
+
+  const { data: skills } = useSuspenseQuery(api.skills.byRepo.queryOptions({ owner, repo }));
 
   // Get repo metadata from first skill
   const repoMeta = useMemo(() => {
@@ -29,12 +31,12 @@ function RepoPage() {
   if (skills.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-12">
-        <Link
-          to="/"
+        <a
+          href="/"
           className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary hover:text-text-secondary"
         >
           Back to all skills
-        </Link>
+        </a>
         <div className="border border-border bg-bg-secondary p-12 text-center">
           <p className="font-mono text-text-secondary">
             No skills found in {owner}/{repo}
@@ -48,9 +50,9 @@ function RepoPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       {/* Breadcrumb */}
       <nav className="mb-8 flex items-center gap-2 text-sm">
-        <Link to="/" className="text-text-tertiary hover:text-text-secondary">
+        <a href="/" className="text-text-tertiary hover:text-text-secondary">
           Home
-        </Link>
+        </a>
         <span className="text-text-tertiary">/</span>
         <Link
           to="/$owner"
@@ -113,9 +115,10 @@ function RepoPage() {
 
 const Route = createFileRoute("/$owner/$repo/")({
   component: RepoPage,
-  loader: async ({ params }) => {
-    const skills = await getSkillsByRepoFn({ data: { owner: params.owner, repo: params.repo } });
-    return { skills };
+  loader: async ({ context: { queryClient }, params }) => {
+    await queryClient.ensureQueryData(
+      api.skills.byRepo.queryOptions({ owner: params.owner, repo: params.repo }),
+    );
   },
 });
 
