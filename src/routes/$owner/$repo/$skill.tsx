@@ -7,8 +7,8 @@ import type { Skill } from "@/lib/types";
 import { SkillCard } from "@/components/skill-card";
 import { SkillContent } from "@/components/skill-content";
 import { SkillInstall } from "@/components/skill-install";
+import { getSkillByIdFn, getSkillsByRepoFn } from "@/lib/api/skills.server";
 import { fetchSkillMd, parseSkillMd } from "@/lib/github";
-import { getSkillById, getSkillsByRepo } from "@/lib/skills";
 
 function formatStars(stars: number): string {
   if (stars >= 1000) {
@@ -30,7 +30,7 @@ function SkillDetailPage() {
 
   // Load skill data
   useMemo(() => {
-    void getSkillById(skillId).then((data) => {
+    void getSkillByIdFn({ data: { id: skillId } }).then((data) => {
       setSkill(data);
       setLoading(false);
       if (!data) {
@@ -41,7 +41,7 @@ function SkillDetailPage() {
 
   // Load related skills from the same repo
   useMemo(() => {
-    void getSkillsByRepo(owner, repo).then((skills) => {
+    void getSkillsByRepoFn({ data: { owner, repo } }).then((skills) => {
       // Filter out the current skill
       setRelatedSkills(skills.filter((s) => s.id !== skillId).slice(0, 4));
     });

@@ -1,141 +1,65 @@
-import type { Registry, Skill } from "./types";
+import type { Skill, SkillFrontmatter } from "./types";
 
-// Import registry data - this will be generated at build time
-// For now, we'll use a dynamic import pattern
-let cachedRegistry: Registry | null = null;
+// ============================================================================
+// Category and Tag Inference (used by consumer and for display)
+// ============================================================================
 
-async function loadRegistry(): Promise<Registry> {
-  if (cachedRegistry) {
-    return cachedRegistry;
-  }
+// Category inference based on keywords
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  "ios-swift": ["swift", "ios", "swiftui", "xcode", "apple", "macos"],
+  "react-web": ["react", "next", "nextjs", "web", "javascript", "typescript", "vercel"],
+  documents: ["pdf", "docx", "xlsx", "pptx", "document", "excel", "word", "powerpoint"],
+  design: ["design", "ui", "ux", "figma", "css", "tailwind", "style"],
+  devops: ["deploy", "ci", "cd", "docker", "kubernetes", "aws", "cloud"],
+  creative: ["art", "music", "creative", "generate", "image"],
+  enterprise: ["enterprise", "business", "workflow", "communication"],
+};
 
-  try {
-    // Import the generated registry
-    const registryModule = await import("../../registry.json");
-    cachedRegistry = registryModule.default as Registry;
-    return cachedRegistry;
-  } catch {
-    // Return empty registry if file doesn't exist yet
-    return {
-      generatedAt: new Date().toISOString(),
-      skills: [],
-    };
-  }
-}
+const COMMON_TAGS = [
+  "react",
+  "swift",
+  "ios",
+  "web",
+  "pdf",
+  "api",
+  "test",
+  "deploy",
+  "design",
+  "ai",
+  "llm",
+  "code",
+  "review",
+];
 
-// Get all skills
-async function getAllSkills(): Promise<Skill[]> {
-  const registry = await loadRegistry();
-  return registry.skills;
-}
+/**
+ * Infer category from skill frontmatter
+ */
+function inferCategory(frontmatter: SkillFrontmatter): string | undefined {
+  const text = `${frontmatter.name} ${frontmatter.description}`.toLowerCase();
 
-// Get a skill by ID (owner/repo/skill-name)
-async function getSkillById(id: string): Promise<Skill | null> {
-  const skills = await getAllSkills();
-  return skills.find((s) => s.id === id) || null;
-}
-
-// Get skills by owner
-async function getSkillsByOwner(owner: string): Promise<Skill[]> {
-  const skills = await getAllSkills();
-  return skills.filter((s) => s.source.owner.toLowerCase() === owner.toLowerCase());
-}
-
-// Get skills by owner and repo
-async function getSkillsByRepo(owner: string, repo: string): Promise<Skill[]> {
-  const skills = await getAllSkills();
-  return skills.filter(
-    (s) =>
-      s.source.owner.toLowerCase() === owner.toLowerCase() &&
-      s.source.repo.toLowerCase() === repo.toLowerCase(),
-  );
-}
-
-// Get unique owners
-async function getOwners(): Promise<{ owner: string; count: number; stars: number }[]> {
-  const skills = await getAllSkills();
-  const ownerMap = new Map<string, { count: number; stars: number }>();
-
-  for (const skill of skills) {
-    const existing = ownerMap.get(skill.source.owner) || { count: 0, stars: 0 };
-    ownerMap.set(skill.source.owner, {
-      count: existing.count + 1,
-      stars: Math.max(existing.stars, skill.repoStars),
-    });
-  }
-
-  return Array.from(ownerMap.entries())
-    .map(([owner, data]) => ({ owner, ...data }))
-    .sort((a, b) => b.stars - a.stars);
-}
-
-// Get unique repos
-async function getRepos(): Promise<
-  { owner: string; repo: string; count: number; stars: number; description?: string }[]
-> {
-  const skills = await getAllSkills();
-  const repoMap = new Map<
-    string,
-    { owner: string; repo: string; count: number; stars: number; description?: string }
-  >();
-
-  for (const skill of skills) {
-    const key = `${skill.source.owner}/${skill.source.repo}`;
-    const existing = repoMap.get(key);
-
-    if (!existing) {
-      repoMap.set(key, {
-        owner: skill.source.owner,
-        repo: skill.source.repo,
-        count: 1,
-        stars: skill.repoStars,
-        description: skill.repoDescription,
-      });
-    } else {
-      existing.count += 1;
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some((kw) => text.includes(kw))) {
+      return category;
     }
   }
 
-  return Array.from(repoMap.values()).sort((a, b) => b.stars - a.stars);
+  return undefined;
 }
 
-// Get skills by category
-async function getSkillsByCategory(category: string): Promise<Skill[]> {
-  const skills = await getAllSkills();
-  return skills.filter((s) => s.category === category);
+/**
+ * Extract tags from skill frontmatter description
+ */
+function inferTags(frontmatter: SkillFrontmatter): string[] {
+  const words = frontmatter.description.toLowerCase().split(/\s+/);
+  return COMMON_TAGS.filter((tag) => words.some((w) => w.includes(tag)));
 }
 
-// Get all unique categories with counts
-async function getCategories(): Promise<{ category: string; count: number }[]> {
-  const skills = await getAllSkills();
-  const categoryMap = new Map<string, number>();
-
-  for (const skill of skills) {
-    if (skill.category) {
-      categoryMap.set(skill.category, (categoryMap.get(skill.category) || 0) + 1);
-    }
-  }
-
-  return Array.from(categoryMap.entries())
-    .map(([category, count]) => ({ category, count }))
-    .sort((a, b) => b.count - a.count);
-}
-
-// Generate install command using add-skill CLI
+/**
+ * Generate install command using add-skill CLI
+ */
 function getInstallCommand(skill: Skill): string {
   const { owner, repo } = skill.source;
   return `npx add-skill ${owner}/${repo} -s ${skill.name}`;
 }
 
-export {
-  getAllSkills,
-  getCategories,
-  getInstallCommand,
-  getOwners,
-  getRepos,
-  getSkillById,
-  getSkillsByCategory,
-  getSkillsByOwner,
-  getSkillsByRepo,
-  loadRegistry,
-};
+export { getInstallCommand, inferCategory, inferTags };

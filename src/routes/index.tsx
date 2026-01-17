@@ -6,8 +6,8 @@ import type { Skill } from "@/lib/types";
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { SearchBar } from "@/components/search-bar";
 import { SkillCard } from "@/components/skill-card";
+import { getAllSkillsFn } from "@/lib/api/skills.server";
 import { createSearchIndex, filterByCategories, searchSkills, sortSkills } from "@/lib/search";
-import { getAllSkills } from "@/lib/skills";
 
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,7 +17,7 @@ function HomePage() {
 
   // Load skills on mount
   useMemo(() => {
-    void getAllSkills().then((data) => {
+    void getAllSkillsFn().then((data) => {
       setSkills(data);
       setLoading(false);
     });

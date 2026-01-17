@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import type { Skill } from "@/lib/types";
 
 import { SkillCard } from "@/components/skill-card";
-import { getSkillsByRepo } from "@/lib/skills";
+import { getSkillsByRepoFn } from "@/lib/api/skills.server";
 
 function formatStars(stars: number): string {
   if (stars >= 1000) {
@@ -21,7 +21,7 @@ function RepoPage() {
 
   // Load skills for this repo
   useMemo(() => {
-    void getSkillsByRepo(owner, repo).then((data) => {
+    void getSkillsByRepoFn({ data: { owner, repo } }).then((data) => {
       setSkills(data);
       setLoading(false);
     });

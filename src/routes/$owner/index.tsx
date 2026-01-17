@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import type { Skill } from "@/lib/types";
 
 import { SkillCard } from "@/components/skill-card";
-import { getSkillsByOwner } from "@/lib/skills";
+import { getSkillsByOwnerFn } from "@/lib/api/skills.server";
 
 function formatStars(stars: number): string {
   if (stars >= 1000) {
@@ -21,7 +21,7 @@ function OwnerPage() {
 
   // Load skills for this owner
   useMemo(() => {
-    void getSkillsByOwner(owner).then((data) => {
+    void getSkillsByOwnerFn({ data: { owner } }).then((data) => {
       setSkills(data);
       setLoading(false);
     });

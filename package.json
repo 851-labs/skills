@@ -15,14 +15,17 @@
     "@tanstack/react-router": "^1.150.0",
     "@tanstack/react-start": "^1.150.0",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.1",
     "fuse.js": "^7.1.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.562.0",
+    "nanoid": "^5.1.6",
     "onedollarstats": "^0.0.11",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.21.0",
@@ -35,6 +38,7 @@
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "drizzle-kit": "^0.31.8",
     "lefthook": "^2.0.15",
     "nitro": "npm:nitro-nightly@latest",
     "oxfmt": "^0.24.0",

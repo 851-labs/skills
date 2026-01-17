@@ -3,6 +3,10 @@ import type { SkillFrontmatter } from "./types";
 const GITHUB_API_BASE = "https://api.github.com";
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 interface GitHubTreeItem {
   path: string;
   type: "blob" | "tree";
@@ -18,6 +22,56 @@ interface GitHubRepoResponse {
   stargazers_count: number;
   description: string | null;
   pushed_at: string;
+  default_branch: string;
+  fork: boolean;
+  license: { spdx_id: string } | null;
+  owner: {
+    login: string;
+    type: string;
+    avatar_url: string;
+    html_url: string;
+  };
+  full_name: string;
+  html_url: string;
+}
+
+interface GitHubSearchResult {
+  total_count: number;
+  incomplete_results: boolean;
+  items: Array<{
+    repository: {
+      full_name: string;
+      owner: {
+        login: string;
+        type: string;
+        avatar_url: string;
+        html_url: string;
+      };
+      name: string;
+      description: string | null;
+      html_url: string;
+      stargazers_count: number;
+      default_branch: string;
+      fork: boolean;
+      license: { spdx_id: string } | null;
+    };
+  }>;
+}
+
+/** Repository info returned from search */
+interface DiscoveredRepo {
+  fullName: string;
+  owner: string;
+  ownerType: string;
+  ownerAvatarUrl: string;
+  ownerHtmlUrl: string;
+  name: string;
+  description: string | null;
+  htmlUrl: string;
+  stars: number;
+  defaultBranch: string;
+  isFork: boolean;
+  license: string | null;
 }
 
 interface FetchWithETagResult {
@@ -213,12 +267,202 @@ function buildRawSkillMdUrl(owner: string, repo: string, branch: string, path: s
   return `${GITHUB_RAW_BASE}/${owner}/${repo}/${branch}/${path}/SKILL.md`;
 }
 
+// ============================================================================
+// GitHub Search API - for discovering SKILL.md files across all of GitHub
+// ============================================================================
+
+/**
+ * Search GitHub for all repositories containing SKILL.md files
+ * Uses the GitHub Code Search API with pagination
+ *
+ * Note: GitHub Code Search API has rate limits:
+ * - 10 requests per minute for unauthenticated
+ * - 30 requests per minute for authenticated
+ * - Max 1000 results per query
+ */
+async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
+  const repos = new Map<string, DiscoveredRepo>();
+  let page = 1;
+  const perPage = 100;
+
+  console.log(`[GitHub Search] Starting search for SKILL.md files`);
+
+  while (true) {
+    const url = new URL(`${GITHUB_API_BASE}/search/code`);
+    url.searchParams.set("q", "filename:SKILL.md");
+    url.searchParams.set("per_page", perPage.toString());
+    url.searchParams.set("page", page.toString());
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer ${token}`,
+        "User-Agent": "skills.surf",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 403) {
+        // Rate limited - log and return what we have
+        console.warn(`[GitHub Search] Rate limited at page ${page}, returning ${repos.size} repos`);
+        break;
+      }
+      throw new Error(`GitHub search failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as GitHubSearchResult;
+    console.log(
+      `[GitHub Search] Page ${page}: ${data.items.length} results (total: ${data.total_count})`,
+    );
+
+    // Extract unique repos from search results
+    for (const item of data.items) {
+      const repo = item.repository;
+      if (!repos.has(repo.full_name)) {
+        repos.set(repo.full_name, {
+          fullName: repo.full_name,
+          owner: repo.owner.login,
+          ownerType: repo.owner.type,
+          ownerAvatarUrl: repo.owner.avatar_url,
+          ownerHtmlUrl: repo.owner.html_url,
+          name: repo.name,
+          description: repo.description,
+          htmlUrl: repo.html_url,
+          stars: repo.stargazers_count,
+          defaultBranch: repo.default_branch,
+          isFork: repo.fork,
+          license: repo.license?.spdx_id ?? null,
+        });
+      }
+    }
+
+    // Check if we've reached the end
+    if (data.items.length < perPage || page * perPage >= 1000) {
+      // GitHub limits to 1000 results
+      break;
+    }
+
+    page++;
+
+    // Small delay to avoid rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  console.log(`[GitHub Search] Found ${repos.size} unique repositories with SKILL.md`);
+  return Array.from(repos.values());
+}
+
+/**
+ * Get full repository info including owner details
+ * Used when we need more details than the search API provides
+ */
+async function getFullRepoInfo(
+  owner: string,
+  repo: string,
+  token: string,
+): Promise<DiscoveredRepo> {
+  const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/vnd.github.v3+json",
+      Authorization: `Bearer ${token}`,
+      "User-Agent": "skills.surf",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch repo info: ${response.status}`);
+  }
+
+  const data = (await response.json()) as GitHubRepoResponse;
+
+  return {
+    fullName: data.full_name,
+    owner: data.owner.login,
+    ownerType: data.owner.type,
+    ownerAvatarUrl: data.owner.avatar_url,
+    ownerHtmlUrl: data.owner.html_url,
+    name: repo,
+    description: data.description,
+    htmlUrl: data.html_url,
+    stars: data.stargazers_count,
+    defaultBranch: data.default_branch,
+    isFork: data.fork,
+    license: data.license?.spdx_id ?? null,
+  };
+}
+
+/**
+ * Find all SKILL.md files in a repository
+ * Returns the directory paths containing SKILL.md files
+ */
+async function findSkillMdPaths(
+  owner: string,
+  repo: string,
+  branch: string,
+  token: string,
+): Promise<string[]> {
+  const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`;
+
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/vnd.github.v3+json",
+      Authorization: `Bearer ${token}`,
+      "User-Agent": "skills.surf",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch repo tree: ${response.status}`);
+  }
+
+  const data = (await response.json()) as GitHubTreeResponse;
+
+  // Find all SKILL.md files and return their parent directories
+  return data.tree
+    .filter((item) => item.type === "blob" && item.path.endsWith("/SKILL.md"))
+    .map((item) => item.path.replace(/\/SKILL\.md$/, ""));
+}
+
+/**
+ * Fetch raw content from GitHub
+ */
+async function fetchRawContent(
+  owner: string,
+  repo: string,
+  branch: string,
+  path: string,
+  token: string,
+): Promise<string> {
+  const url = `${GITHUB_RAW_BASE}/${owner}/${repo}/${branch}/${path}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "User-Agent": "skills.surf",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${path}: ${response.status}`);
+  }
+
+  return response.text();
+}
+
 export {
   buildGitHubUrl,
   buildRawSkillMdUrl,
+  fetchRawContent,
   fetchSkillMd,
   fetchWithETag,
+  findSkillMdPaths,
+  getFullRepoInfo,
   getRepoMetadata,
   listSkillDirectories,
   parseSkillMd,
+  searchSkillMdRepos,
 };
+
+export type { DiscoveredRepo };
