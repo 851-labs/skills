@@ -121,21 +121,15 @@ async function getCategories(): Promise<{ category: string; count: number }[]> {
     .sort((a, b) => b.count - a.count);
 }
 
-// Generate install command for a skill
+// Generate install command using add-skill CLI
 function getInstallCommand(skill: Skill): string {
-  const { owner, repo, path } = skill.source;
-  return `git clone --depth 1 --filter=blob:none --sparse https://github.com/${owner}/${repo}.git && cd ${repo} && git sparse-checkout set ${path}`;
-}
-
-// Generate curl command to download SKILL.md
-function getCurlCommand(skill: Skill): string {
-  return `curl -sL ${skill.source.rawSkillMdUrl}`;
+  const { owner, repo } = skill.source;
+  return `npx add-skill ${owner}/${repo} -s ${skill.name}`;
 }
 
 export {
   getAllSkills,
   getCategories,
-  getCurlCommand,
   getInstallCommand,
   getOwners,
   getRepos,
