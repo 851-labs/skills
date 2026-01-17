@@ -11,14 +11,12 @@ function SkillInstall({ skill }: SkillInstallProps) {
   const command = getInstallCommand(skill);
 
   return (
-    <div className="border border-border bg-bg-secondary">
-      <div className="relative p-4">
-        <pre className="overflow-x-auto font-mono text-sm text-text-primary">
-          <span className="text-accent">$</span> {command}
-        </pre>
-        <div className="absolute right-4 top-4">
-          <CopyButton text={command} />
-        </div>
+    <div className="relative border border-border bg-bg-secondary p-4">
+      <pre className="overflow-x-auto pr-16 font-mono text-sm text-text-primary">
+        <span className="text-accent">$</span> {command}
+      </pre>
+      <div className="absolute right-4 top-4">
+        <CopyButton text={command} />
       </div>
     </div>
   );
