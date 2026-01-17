@@ -50,10 +50,8 @@ interface GitHubSearchResult {
       name: string;
       description: string | null;
       html_url: string;
-      stargazers_count: number;
-      default_branch: string;
+      // Note: Code Search API returns limited repo info - no stars, default_branch, license
       fork: boolean;
-      license: { spdx_id: string } | null;
     };
   }>;
 }
@@ -282,70 +280,88 @@ function buildRawSkillMdUrl(owner: string, repo: string, branch: string, path: s
  */
 async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
   const repos = new Map<string, DiscoveredRepo>();
-  let page = 1;
   const perPage = 100;
 
   console.log(`[GitHub Search] Starting search for SKILL.md files`);
 
-  while (true) {
-    const url = new URL(`${GITHUB_API_BASE}/search/code`);
-    url.searchParams.set("q", "filename:SKILL.md");
-    url.searchParams.set("per_page", perPage.toString());
-    url.searchParams.set("page", page.toString());
+  // Search with multiple queries to find Agent Skills specifically
+  // The basic filename search returns too much noise (57k+ results)
+  // We use content-based searches to find files with frontmatter patterns
+  const searchQueries = [
+    "filename:SKILL.md name description compatibility", // Agent Skills format
+    "filename:SKILL.md org:anthropics", // Official Anthropic skills
+    "filename:SKILL.md org:851-labs", // Our skills
+    "filename:SKILL.md claude skill agent", // Related keywords
+  ];
 
-    const response = await fetch(url.toString(), {
-      headers: {
-        Accept: "application/vnd.github.v3+json",
-        Authorization: `Bearer ${token}`,
-        "User-Agent": "skills.surf",
-      },
-    });
+  for (const query of searchQueries) {
+    console.log(`[GitHub Search] Query: ${query}`);
+    let page = 1;
 
-    if (!response.ok) {
-      if (response.status === 403) {
-        // Rate limited - log and return what we have
-        console.warn(`[GitHub Search] Rate limited at page ${page}, returning ${repos.size} repos`);
+    while (true) {
+      const url = new URL(`${GITHUB_API_BASE}/search/code`);
+      url.searchParams.set("q", query);
+      url.searchParams.set("per_page", perPage.toString());
+      url.searchParams.set("page", page.toString());
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "skills.surf",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          // Rate limited - log and continue to next query
+          console.warn(
+            `[GitHub Search] Rate limited at page ${page}, moving to next query (${repos.size} repos so far)`,
+          );
+          break;
+        }
+        throw new Error(`GitHub search failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as GitHubSearchResult;
+      console.log(
+        `[GitHub Search] Page ${page}: ${data.items.length} results (total: ${data.total_count})`,
+      );
+
+      // Extract unique repos from search results
+      for (const item of data.items) {
+        const repo = item.repository;
+        if (!repos.has(repo.full_name)) {
+          repos.set(repo.full_name, {
+            fullName: repo.full_name,
+            owner: repo.owner.login,
+            ownerType: repo.owner.type,
+            ownerAvatarUrl: repo.owner.avatar_url,
+            ownerHtmlUrl: repo.owner.html_url,
+            name: repo.name,
+            description: repo.description,
+            htmlUrl: repo.html_url,
+            stars: 0, // Will be fetched by consumer
+            defaultBranch: "main", // Will be fetched by consumer
+            isFork: repo.fork,
+            license: null, // Will be fetched by consumer
+          });
+        }
+      }
+
+      // Check if we've reached the end of this query's results
+      if (data.items.length < perPage || page * perPage >= 1000) {
         break;
       }
-      throw new Error(`GitHub search failed: ${response.status} ${response.statusText}`);
+
+      page++;
+
+      // Small delay to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    const data = (await response.json()) as GitHubSearchResult;
-    console.log(
-      `[GitHub Search] Page ${page}: ${data.items.length} results (total: ${data.total_count})`,
-    );
-
-    // Extract unique repos from search results
-    for (const item of data.items) {
-      const repo = item.repository;
-      if (!repos.has(repo.full_name)) {
-        repos.set(repo.full_name, {
-          fullName: repo.full_name,
-          owner: repo.owner.login,
-          ownerType: repo.owner.type,
-          ownerAvatarUrl: repo.owner.avatar_url,
-          ownerHtmlUrl: repo.owner.html_url,
-          name: repo.name,
-          description: repo.description,
-          htmlUrl: repo.html_url,
-          stars: repo.stargazers_count,
-          defaultBranch: repo.default_branch,
-          isFork: repo.fork,
-          license: repo.license?.spdx_id ?? null,
-        });
-      }
-    }
-
-    // Check if we've reached the end
-    if (data.items.length < perPage || page * perPage >= 1000) {
-      // GitHub limits to 1000 results
-      break;
-    }
-
-    page++;
-
-    // Small delay to avoid rate limiting
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Delay between queries to be nice to GitHub API
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   console.log(`[GitHub Search] Found ${repos.size} unique repositories with SKILL.md`);
@@ -355,12 +371,13 @@ async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
 /**
  * Get full repository info including owner details
  * Used when we need more details than the search API provides
+ * Returns null if repo doesn't exist (404)
  */
 async function getFullRepoInfo(
   owner: string,
   repo: string,
   token: string,
-): Promise<DiscoveredRepo> {
+): Promise<DiscoveredRepo | null> {
   const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}`;
 
   const response = await fetch(url, {
@@ -372,6 +389,10 @@ async function getFullRepoInfo(
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      console.log(`[getFullRepoInfo] Repo ${owner}/${repo} not found (404)`);
+      return null;
+    }
     throw new Error(`Failed to fetch repo info: ${response.status}`);
   }
 
@@ -414,15 +435,30 @@ async function findSkillMdPaths(
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      // Repo doesn't exist, was deleted, or is private - return empty array
+      console.log(`[findSkillMdPaths] Repo ${owner}/${repo} not found (404)`);
+      return [];
+    }
     throw new Error(`Failed to fetch repo tree: ${response.status}`);
   }
 
   const data = (await response.json()) as GitHubTreeResponse;
 
   // Find all SKILL.md files and return their parent directories
-  return data.tree
-    .filter((item) => item.type === "blob" && item.path.endsWith("/SKILL.md"))
-    .map((item) => item.path.replace(/\/SKILL\.md$/, ""));
+  const paths: string[] = [];
+  for (const item of data.tree) {
+    if (item.type !== "blob") continue;
+
+    if (item.path === "SKILL.md") {
+      // Root-level SKILL.md - use empty string as path
+      paths.push("");
+    } else if (item.path.endsWith("/SKILL.md")) {
+      // Nested SKILL.md - extract parent directory
+      paths.push(item.path.replace(/\/SKILL\.md$/, ""));
+    }
+  }
+  return paths;
 }
 
 /**

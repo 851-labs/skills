@@ -8,6 +8,7 @@ import {
   buildRawSkillMdUrl,
   fetchRawContent,
   findSkillMdPaths,
+  getFullRepoInfo,
   parseSkillMd,
 } from "@/lib/github";
 import { inferCategory, inferTags } from "@/lib/skills";
@@ -18,18 +19,7 @@ import type { DiscoveryJobMessage } from "./types";
  * Process a single repository: fetch all SKILL.md files and upsert to database
  */
 async function processRepo(message: DiscoveryJobMessage): Promise<void> {
-  const {
-    repoFullName,
-    owner,
-    repo,
-    defaultBranch,
-    stars,
-    isFork,
-    ownerType,
-    ownerAvatarUrl,
-    description,
-    license,
-  } = message;
+  const { repoFullName, owner, repo, ownerType, ownerAvatarUrl } = message;
   const log = `[consumer:${repoFullName}]`;
 
   console.log(`${log} Processing repository`);
@@ -41,6 +31,14 @@ async function processRepo(message: DiscoveryJobMessage): Promise<void> {
   }
 
   try {
+    // 0. Fetch full repo info (Code Search API doesn't return stars, default_branch, license)
+    const repoInfo = await getFullRepoInfo(owner, repo, token);
+    if (!repoInfo) {
+      console.log(`${log} Repository not found, skipping`);
+      return;
+    }
+    const { defaultBranch, stars, isFork, license, description } = repoInfo;
+
     // 1. Upsert owner
     const ownerHtmlUrl = `https://github.com/${owner}`;
     await db
@@ -116,18 +114,14 @@ async function processRepo(message: DiscoveryJobMessage): Promise<void> {
 
     for (const skillPath of skillPaths) {
       try {
-        // Fetch SKILL.md content
-        const content = await fetchRawContent(
-          owner,
-          repo,
-          defaultBranch,
-          `${skillPath}/SKILL.md`,
-          token,
-        );
+        // Fetch SKILL.md content - handle root-level (empty path) case
+        const skillMdPath = skillPath ? `${skillPath}/SKILL.md` : "SKILL.md";
+        const content = await fetchRawContent(owner, repo, defaultBranch, skillMdPath, token);
         const { frontmatter } = parseSkillMd(content);
 
-        // Extract skill name from path (last segment)
-        const skillName = frontmatter.name || skillPath.split("/").pop() || skillPath;
+        // Extract skill name from path (last segment) or use frontmatter name
+        const skillName =
+          frontmatter.name || (skillPath ? skillPath.split("/").pop() : repo) || repo;
         const skillId = `${repoFullName}/${skillName}`;
         const githubUrl = buildGitHubUrl(owner, repo, defaultBranch, skillPath);
         const rawUrl = buildRawSkillMdUrl(owner, repo, defaultBranch, skillPath);
