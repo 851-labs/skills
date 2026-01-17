@@ -351,12 +351,12 @@ async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
 
       page++;
 
-      // Small delay to avoid rate limiting
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Delay to stay under GitHub rate limit (30 requests/minute = 2 seconds per request)
+      await new Promise((resolve) => setTimeout(resolve, 2500));
     }
 
-    // Delay between queries to be nice to GitHub API
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Delay between queries
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
   console.log(`[GitHub Search] Found ${repos.size} unique repositories with SKILL.md`);
