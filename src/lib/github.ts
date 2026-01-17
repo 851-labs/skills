@@ -269,24 +269,24 @@ async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
   // Strategy: Use pushed: date ranges to get different result sets
   // Each query can return up to 1000 results, so we split by time periods
   const searchQueries = [
-    // Recent files (most likely to be valid Agent Skills)
-    "filename:SKILL.md pushed:>=2025-01-01",
-    "filename:SKILL.md pushed:2024-07-01..2024-12-31",
-    "filename:SKILL.md pushed:2024-01-01..2024-06-30",
-    "filename:SKILL.md pushed:2023-07-01..2023-12-31",
-    "filename:SKILL.md pushed:2023-01-01..2023-06-30",
-    "filename:SKILL.md pushed:2022-01-01..2022-12-31",
-    "filename:SKILL.md pushed:<2022-01-01",
-    // Also search by stars to catch popular repos that might be missed
+    // Search by stars (works for code search)
     "filename:SKILL.md stars:>100",
     "filename:SKILL.md stars:50..100",
     "filename:SKILL.md stars:10..50",
+    "filename:SKILL.md stars:5..10",
+    "filename:SKILL.md stars:1..5",
+    "filename:SKILL.md stars:0",
     // Content-based searches for Agent Skills frontmatter patterns
     "filename:SKILL.md name description",
-    // Search in nested paths (skills/, agents/, .claude/)
+    "filename:SKILL.md name: description:",
+    // Search in common skill paths
     "filename:SKILL.md path:skills",
     "filename:SKILL.md path:agents",
     "filename:SKILL.md path:.claude",
+    // Search for files with specific content patterns
+    "filename:SKILL.md compatibility",
+    "filename:SKILL.md metadata",
+    "filename:SKILL.md license",
   ];
 
   for (const query of searchQueries) {
