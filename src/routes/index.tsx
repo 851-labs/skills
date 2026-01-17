@@ -10,18 +10,9 @@ import { getAllSkillsFn } from "@/lib/api/skills.server";
 import { createSearchIndex, filterByCategories, searchSkills, sortSkills } from "@/lib/search";
 
 function HomePage() {
+  const { skills } = Route.useLoaderData();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load skills on mount
-  useMemo(() => {
-    void getAllSkillsFn().then((data) => {
-      setSkills(data);
-      setLoading(false);
-    });
-  }, []);
 
   // Create search index
   const searchIndex = useMemo(() => createSearchIndex(skills), [skills]);
@@ -92,11 +83,7 @@ function HomePage() {
 
         {/* Skills Grid */}
         <div className="flex-1">
-          {loading ? (
-            <div className="py-12 text-center">
-              <p className="font-mono text-text-tertiary">Loading skills...</p>
-            </div>
-          ) : filteredSkills.length === 0 ? (
+          {filteredSkills.length === 0 ? (
             <div className="border border-border bg-bg-secondary p-12 text-center">
               <p className="font-mono text-text-secondary">No skills found</p>
               <p className="mt-2 text-sm text-text-tertiary">
@@ -118,6 +105,10 @@ function HomePage() {
 
 const Route = createFileRoute("/")({
   component: HomePage,
+  loader: async () => {
+    const skills = await getAllSkillsFn();
+    return { skills };
+  },
 });
 
 export { Route };

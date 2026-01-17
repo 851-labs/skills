@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, Folder, Star, Tag } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-
-import type { Skill } from "@/lib/types";
+import { useEffect, useState } from "react";
 
 import { SkillCard } from "@/components/skill-card";
 import { SkillContent } from "@/components/skill-content";
@@ -18,34 +16,10 @@ function formatStars(stars: number): string {
 }
 
 function SkillDetailPage() {
-  const { owner, repo, skill: skillSlug } = Route.useParams();
-  const [skill, setSkill] = useState<Skill | null>(null);
+  const { owner, repo } = Route.useParams();
+  const { skill, relatedSkills } = Route.useLoaderData();
   const [skillContent, setSkillContent] = useState<string | null>(null);
-  const [relatedSkills, setRelatedSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
   const [contentLoading, setContentLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const skillId = `${owner}/${repo}/${skillSlug}`;
-
-  // Load skill data
-  useMemo(() => {
-    void getSkillByIdFn({ data: { id: skillId } }).then((data) => {
-      setSkill(data);
-      setLoading(false);
-      if (!data) {
-        setError("Skill not found");
-      }
-    });
-  }, [skillId]);
-
-  // Load related skills from the same repo
-  useMemo(() => {
-    void getSkillsByRepoFn({ data: { owner, repo } }).then((skills) => {
-      // Filter out the current skill
-      setRelatedSkills(skills.filter((s) => s.id !== skillId).slice(0, 4));
-    });
-  }, [owner, repo, skillId]);
 
   // Fetch SKILL.md content
   useEffect(() => {
@@ -66,15 +40,7 @@ function SkillDetailPage() {
       });
   }, [skill]);
 
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-4xl px-4 py-12">
-        <p className="text-center font-mono text-text-tertiary">Loading...</p>
-      </div>
-    );
-  }
-
-  if (error || !skill) {
+  if (!skill) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12">
         <Link
@@ -85,7 +51,7 @@ function SkillDetailPage() {
           Back to all skills
         </Link>
         <div className="border border-border bg-bg-secondary p-12 text-center">
-          <p className="font-mono text-text-secondary">{error || "Skill not found"}</p>
+          <p className="font-mono text-text-secondary">Skill not found</p>
         </div>
       </div>
     );
@@ -221,6 +187,16 @@ function SkillDetailPage() {
 
 const Route = createFileRoute("/$owner/$repo/$skill")({
   component: SkillDetailPage,
+  loader: async ({ params }) => {
+    const skillId = `${params.owner}/${params.repo}/${params.skill}`;
+    const [skill, allRepoSkills] = await Promise.all([
+      getSkillByIdFn({ data: { id: skillId } }),
+      getSkillsByRepoFn({ data: { owner: params.owner, repo: params.repo } }),
+    ]);
+    // Filter out the current skill and take up to 4 related skills
+    const relatedSkills = allRepoSkills.filter((s) => s.id !== skillId).slice(0, 4);
+    return { skill, relatedSkills };
+  },
 });
 
 export { Route };

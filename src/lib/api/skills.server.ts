@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq, isNull, sql } from "drizzle-orm";
+import { eq, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import type { Skill } from "../types";
@@ -49,26 +49,32 @@ function toSkill(data: SkillWithRelations): Skill {
 
 /**
  * Fetch tags for a list of skill IDs
+ * Batches queries to avoid SQLite's placeholder limit (SQLITE_MAX_VARIABLE_NUMBER = 999)
  */
 async function fetchTagsForSkills(skillIds: string[]): Promise<Map<string, string[]>> {
   if (skillIds.length === 0) {
     return new Map();
   }
 
-  const tagRows = await db
-    .select({
-      skillId: schema.skillTags.skillId,
-      tagName: schema.tags.name,
-    })
-    .from(schema.skillTags)
-    .innerJoin(schema.tags, eq(schema.skillTags.tagId, schema.tags.id))
-    .where(sql`${schema.skillTags.skillId} IN ${skillIds}`);
-
   const tagsBySkill = new Map<string, string[]>();
-  for (const { skillId, tagName } of tagRows) {
-    const existing = tagsBySkill.get(skillId) || [];
-    existing.push(tagName);
-    tagsBySkill.set(skillId, existing);
+  const batchSize = 100; // D1 may have stricter limits than SQLite's 999
+
+  for (let i = 0; i < skillIds.length; i += batchSize) {
+    const batch = skillIds.slice(i, i + batchSize);
+    const tagRows = await db
+      .select({
+        skillId: schema.skillTags.skillId,
+        tagName: schema.tags.name,
+      })
+      .from(schema.skillTags)
+      .innerJoin(schema.tags, eq(schema.skillTags.tagId, schema.tags.id))
+      .where(inArray(schema.skillTags.skillId, batch));
+
+    for (const { skillId, tagName } of tagRows) {
+      const existing = tagsBySkill.get(skillId) || [];
+      existing.push(tagName);
+      tagsBySkill.set(skillId, existing);
+    }
   }
 
   return tagsBySkill;

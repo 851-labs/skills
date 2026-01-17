@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, Star } from "lucide-react";
-import { useMemo, useState } from "react";
-
-import type { Skill } from "@/lib/types";
+import { useMemo } from "react";
 
 import { SkillCard } from "@/components/skill-card";
 import { getSkillsByOwnerFn } from "@/lib/api/skills.server";
@@ -16,16 +14,7 @@ function formatStars(stars: number): string {
 
 function OwnerPage() {
   const { owner } = Route.useParams();
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load skills for this owner
-  useMemo(() => {
-    void getSkillsByOwnerFn({ data: { owner } }).then((data) => {
-      setSkills(data);
-      setLoading(false);
-    });
-  }, [owner]);
+  const { skills } = Route.useLoaderData();
 
   // Get unique repos for this owner
   const repos = useMemo(() => {
@@ -55,14 +44,6 @@ function OwnerPage() {
     }
     return Array.from(maxStars.values()).reduce((a, b) => a + b, 0);
   }, [skills]);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-12">
-        <p className="text-center font-mono text-text-tertiary">Loading...</p>
-      </div>
-    );
-  }
 
   if (skills.length === 0) {
     return (
@@ -135,6 +116,10 @@ function OwnerPage() {
 
 const Route = createFileRoute("/$owner/")({
   component: OwnerPage,
+  loader: async ({ params }) => {
+    const skills = await getSkillsByOwnerFn({ data: { owner: params.owner } });
+    return { skills };
+  },
 });
 
 export { Route };

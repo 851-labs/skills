@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink, Star } from "lucide-react";
-import { useMemo, useState } from "react";
-
-import type { Skill } from "@/lib/types";
+import { ExternalLink, Star } from "lucide-react";
+import { useMemo } from "react";
 
 import { SkillCard } from "@/components/skill-card";
 import { getSkillsByRepoFn } from "@/lib/api/skills.server";
@@ -16,16 +14,7 @@ function formatStars(stars: number): string {
 
 function RepoPage() {
   const { owner, repo } = Route.useParams();
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load skills for this repo
-  useMemo(() => {
-    void getSkillsByRepoFn({ data: { owner, repo } }).then((data) => {
-      setSkills(data);
-      setLoading(false);
-    });
-  }, [owner, repo]);
+  const { skills } = Route.useLoaderData();
 
   // Get repo metadata from first skill
   const repoMeta = useMemo(() => {
@@ -37,14 +26,6 @@ function RepoPage() {
     };
   }, [skills]);
 
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-12">
-        <p className="text-center font-mono text-text-tertiary">Loading...</p>
-      </div>
-    );
-  }
-
   if (skills.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-12">
@@ -52,7 +33,6 @@ function RepoPage() {
           to="/"
           className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary hover:text-text-secondary"
         >
-          <ArrowLeft className="h-4 w-4" />
           Back to all skills
         </Link>
         <div className="border border-border bg-bg-secondary p-12 text-center">
@@ -72,9 +52,13 @@ function RepoPage() {
           Home
         </Link>
         <span className="text-text-tertiary">/</span>
-        <a href={`/${owner}`} className="text-text-tertiary hover:text-text-secondary">
+        <Link
+          to="/$owner"
+          params={{ owner }}
+          className="text-text-tertiary hover:text-text-secondary"
+        >
           {owner}
-        </a>
+        </Link>
         <span className="text-text-tertiary">/</span>
         <span className="text-text-primary">{repo}</span>
       </nav>
@@ -129,6 +113,10 @@ function RepoPage() {
 
 const Route = createFileRoute("/$owner/$repo/")({
   component: RepoPage,
+  loader: async ({ params }) => {
+    const skills = await getSkillsByRepoFn({ data: { owner: params.owner, repo: params.repo } });
+    return { skills };
+  },
 });
 
 export { Route };
