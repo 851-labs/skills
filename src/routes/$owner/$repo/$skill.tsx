@@ -180,7 +180,7 @@ function SkillDetailPage() {
 
       {/* Install Commands */}
       <section className="mb-8">
-        <h2 className="mb-4 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
+        <h2 className="mb-4 border-b border-border pb-2 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
           Install
         </h2>
         <SkillInstall skill={skill} />
@@ -188,7 +188,7 @@ function SkillDetailPage() {
 
       {/* SKILL.md Content */}
       <section className="mb-8">
-        <h2 className="mb-4 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
+        <h2 className="mb-4 border-b border-border pb-2 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
           Documentation
         </h2>
         <div className="border border-border bg-bg-secondary p-6">
@@ -205,7 +205,7 @@ function SkillDetailPage() {
       {/* Related Skills */}
       {relatedSkills.length > 0 && (
         <section>
-          <h2 className="mb-4 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
+          <h2 className="mb-4 border-b border-border pb-2 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
             More from {owner}/{repo}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">

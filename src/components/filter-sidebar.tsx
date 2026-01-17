@@ -22,7 +22,7 @@ function FilterSidebar({
   return (
     <aside className="w-full shrink-0 lg:w-48">
       <div className="border border-border bg-bg-secondary p-4">
-        <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-wider text-text-tertiary">
+        <h3 className="mb-3 border-b border-border pb-2 font-mono text-xs font-bold uppercase tracking-wider text-text-tertiary">
           Filter by Category
         </h3>
         <div className="space-y-2">

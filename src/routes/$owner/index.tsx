@@ -121,7 +121,7 @@ function OwnerPage() {
       </div>
 
       {/* Skills Grid */}
-      <h2 className="mb-4 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
+      <h2 className="mb-4 border-b border-border pb-2 font-mono text-sm font-bold uppercase tracking-wider text-text-tertiary">
         All Skills
       </h2>
       <div className="grid gap-4 sm:grid-cols-2">

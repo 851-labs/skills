@@ -68,7 +68,7 @@ function HomePage() {
       {/* Hero Section */}
       <div className="mb-12 text-center">
         <h1 className="mb-4 font-mono text-3xl font-bold text-text-primary sm:text-4xl">
-          DISCOVER AGENT SKILLS
+          Discover Agent Skills
         </h1>
         <p className="mb-8 text-text-secondary">Browse and install skills for AI coding agents</p>
 
