@@ -9,7 +9,6 @@
   "placement": {
     "mode": "smart",
   },
-  // GITHUB_TOKEN should be set as a secret: wrangler secret put GITHUB_TOKEN
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1.0,
@@ -27,8 +26,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "skills-registry",
-      "database_id": "49a43f80-50f1-4373-8fd2-af9893bce9c1",
+      "database_name": "skills",
+      "database_id": "3698bec0-3bd4-4047-bbd2-34764eb564c2",
       "migrations_dir": "drizzle/migrations",
     },
   ],
