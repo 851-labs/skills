@@ -61,25 +61,6 @@ body {
   color: var(--color-text-primary);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border-hover);
-  border-radius: 0;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-tertiary);
-}
-
 /* Focus styles */
 :focus-visible {
   outline: 1px solid var(--color-accent);
