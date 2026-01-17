@@ -8,6 +8,7 @@ declare namespace Cloudflare {
   interface Env {
     SKILLS_CACHE: KVNamespace;
     GITHUB_TOKEN: string;
+    ADMIN_SECRET?: string;
     DB: D1Database;
     DISCOVERY_QUEUE: Queue;
   }
