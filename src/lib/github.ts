@@ -262,31 +262,36 @@ async function searchSkillMdRepos(token: string): Promise<DiscoveredRepo[]> {
 
   console.log(`[GitHub Search] Starting search for SKILL.md files`);
 
-  // Search for ALL SKILL.md files using date-based pagination to work around
+  // Search for ALL SKILL.md files using multiple queries to work around
   // GitHub's 1000 result limit per query. We validate against the Agent Skills
   // spec in the consumer, so we can be broad here.
   //
-  // Strategy: Use pushed: date ranges to get different result sets
-  // Each query can return up to 1000 results, so we split by time periods
+  // NOTE: stars: and pushed: qualifiers DON'T work with Code Search API
+  // (only with Repository Search API). We use content-based queries instead.
+  //
+  // Strategy: Use diverse content patterns to maximize coverage
   const searchQueries = [
-    // Search by stars (works for code search)
-    "filename:SKILL.md stars:>100",
-    "filename:SKILL.md stars:50..100",
-    "filename:SKILL.md stars:10..50",
-    "filename:SKILL.md stars:5..10",
-    "filename:SKILL.md stars:1..5",
-    "filename:SKILL.md stars:0",
-    // Content-based searches for Agent Skills frontmatter patterns
+    // Required frontmatter fields (most effective - these are spec-required)
+    'filename:SKILL.md "name:"',
+    'filename:SKILL.md "description:"',
+    // Common frontmatter combinations
     "filename:SKILL.md name description",
-    "filename:SKILL.md name: description:",
-    // Search in common skill paths
+    'filename:SKILL.md "---"', // YAML frontmatter delimiter
+    // Search in common skill/agent paths
     "filename:SKILL.md path:skills",
     "filename:SKILL.md path:agents",
     "filename:SKILL.md path:.claude",
-    // Search for files with specific content patterns
+    "filename:SKILL.md path:.cursor",
+    "filename:SKILL.md path:.github",
+    "filename:SKILL.md path:prompts",
+    // Content patterns from the Agent Skills spec
     "filename:SKILL.md compatibility",
-    "filename:SKILL.md metadata",
-    "filename:SKILL.md license",
+    "filename:SKILL.md globs",
+    "filename:SKILL.md alwaysApply",
+    // Common content in skill instructions
+    "filename:SKILL.md instructions",
+    "filename:SKILL.md guidelines",
+    "filename:SKILL.md conventions",
   ];
 
   for (const query of searchQueries) {

@@ -23,6 +23,39 @@ export default {
         return new Response("Discovery jobs queued", { status: 200 });
       }
 
+      // Queue a specific repo for discovery
+      if (url.pathname === "/_admin/queue-repo") {
+        const authHeader = request.headers.get("X-Admin-Secret");
+        const expectedSecret = env.ADMIN_SECRET;
+
+        if (!expectedSecret || authHeader !== expectedSecret) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+
+        const owner = url.searchParams.get("owner");
+        const repo = url.searchParams.get("repo");
+
+        if (!owner || !repo) {
+          return new Response("Missing owner or repo parameter", { status: 400 });
+        }
+
+        const message: DiscoveryJobMessage = {
+          repoFullName: `${owner}/${repo}`,
+          owner,
+          repo,
+          defaultBranch: "main",
+          stars: 0,
+          isFork: false,
+          ownerType: "User",
+          ownerAvatarUrl: `https://github.com/${owner}.png`,
+          description: null,
+          license: null,
+        };
+
+        await env.DISCOVERY_QUEUE.send(message);
+        return new Response(`Queued ${owner}/${repo} for discovery`, { status: 200 });
+      }
+
       return handler.fetch(request);
     },
   }),
